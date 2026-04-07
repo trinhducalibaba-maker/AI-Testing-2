@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Proficiency Scorecard - Chú Tim</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container glass-panel">
+        <div class="header">
+            <h1>AI Proficiency Scorecard</h1>
+            <p>Đánh giá mức độ thuần thục AI của bạn</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <div class="content">
+            <!-- Section 1: Personal Info -->
+            <div class="section active" id="section-info">
+                <h2 class="section-title">Thông tin cá nhân</h2>
+
+                <div class="form-group">
+                    <label>Họ và tên <span class="required">*</span></label>
+                    <input type="text" id="name" required placeholder="Nhập tên của bạn">
+                    <div class="error" id="name-error">Vui lòng nhập họ tên</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <input type="email" id="email" required placeholder="ví dụ: hello@email.com">
+                    <div class="error" id="email-error">Vui lòng nhập email hợp lệ</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Công việc / Chức vụ hiện tại</label>
+                    <input type="text" id="job" placeholder="Ví dụ: Marketing Manager, Sales...">
+                </div>
+
+                <button class="btn btn-primary" onclick="startQuiz()">
+                    <span>Bắt đầu đánh giá</span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </div>
+
+            <!-- Section 2: Questions -->
+            <div class="section" id="section-quiz">
+                <div id="quiz-container">
+                    <!-- Dynamic Questions go here -->
+                </div>
+
+                <div class="quiz-controls">
+                    <button class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn" style="display:none;">Quay lại</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">Tiếp theo</button>
+                </div>
+            </div>
+
+            <!-- Section 3: Results -->
+            <div class="section" id="section-result">
+                <div class="result-page">
+                    <h2 class="section-title text-center">Kết quả của bạn</h2>
+
+                    <div class="score-container">
+                        <div class="score-circle">
+                            <span class="score-number" id="finalScore">0</span>
+                            <span class="score-max">/ 36 điểm</span>
+                        </div>
+                    </div>
+
+                    <div id="tierBadgeContainer"></div>
+                    <div class="tier-description" id="tierDescription">
+                        <!-- Dynamic Tier Description JS injection -->
+                    </div>
+
+                    <div class="cta-box glass-panel-inner">
+                        <h3>✨ Muốn lên level?</h3>
+                        <p>Tham gia workshop <strong>"AI vỡ lòng cho dân văn phòng"</strong></p>
+                        <p class="workshop-date" id="workshopDateCta"></p>
+                        <button class="btn btn-primary btn-block" onclick="registerWorkshop()">Đăng ký Workshop (MIỄN PHÍ)</button>
+                        
+                        <div class="cta-divider">
+                            <p>Hoặc bạn muốn đi nhanh hơn?</p>
+                            <button class="btn btn-outline btn-block" onclick="window.open('https://calendar.app.google/cWx1bqMcox4becCx7', '_blank')">Wanna meet? (Book 1-1 với Tim)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Thank You -->
+            <div class="section" id="section-thankyou">
+                <div class="result-page">
+                    <div class="success-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <h2 class="section-title text-center">Đăng ký thành công!</h2>
+                    <p class="thank-you-subtitle text-center">Tim đã nhận được thông tin của bạn.</p>
+
+                    <div class="cta-box glass-panel-inner" id="thankYouMessageContainer">
+                        <div id="thankYouMessage"></div>
+                        <div class="cta-divider">
+                            <p class="subtitle">Bạn không muốn đợi đến ngày workshop?</p>
+                            <button class="btn btn-outline btn-block" onclick="window.open('https://calendar.app.google/cWx1bqMcox4becCx7', '_blank')">Wanna meet? (Book 1-1 với Tim)</button>
+                        </div>
+                    </div>
+
+                    <div class="footer-note">
+                        <p>Link Google Meet sẽ được gửi qua email trước buổi workshop.</p>
+                        <p>Hẹn gặp bạn!</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
