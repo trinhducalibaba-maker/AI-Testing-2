@@ -301,7 +301,7 @@ function nextQuestion() {
     if (answers[question.id] === undefined || 
         answers[question.id] === null || 
         (Array.isArray(answers[question.id]) && answers[question.id].length === 0)) {
-        alert('Vui lòng chọn ít nhất một đáp án');
+        alert('Vui lòng chọn ít nhất 01 đáp án');
         return;
     }
 
