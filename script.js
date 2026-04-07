@@ -297,15 +297,12 @@ function startQuiz() {
 
 function nextQuestion() {
     const question = questions[currentQuestion];
-    const isOptional = question.scoring === null;
     
-    if (!isOptional && (answers[question.id] === undefined || answers[question.id] === null || (Array.isArray(answers[question.id]) && answers[question.id].length === 0))) {
+    if (answers[question.id] === undefined || 
+        answers[question.id] === null || 
+        (Array.isArray(answers[question.id]) && answers[question.id].length === 0)) {
         alert('Vui lòng chọn ít nhất một đáp án');
         return;
-    }
-    
-    if (isOptional && !answers[question.id]) {
-        answers[question.id] = [];
     }
 
     if (currentQuestion < questions.length - 1) {
