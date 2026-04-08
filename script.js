@@ -297,20 +297,16 @@ function startQuiz() {
 
 function nextQuestion() {
     const question = questions[currentQuestion];
+    const isOptional = question.scoring === null;
     
-    if (answers[question.id] === undefined || 
-        answers[question.id] === null || 
-        (Array.isArray(answers[question.id]) && answers[question.id].length === 0)) {
-        alert('Vui lòng chọn ít nhất 01 đáp án');
+    if (!isOptional && (answers[question.id] === undefined || answers[question.id] === null || (Array.isArray(answers[question.id]) && answers[question.id].length === 0))) {
+        alert('Vui lòng chọn ít nhất một đáp án');
         return;
     }
-
-    if (currentQuestion < questions.length - 1) {
-        currentQuestion++;
-        renderQuestion(currentQuestion);
-    } else {
-        showResults();
-    }
+    
+    if (isOptional && !answers[question.id]) {
+        answers[question.id] = [];
+}
 }
 
 function previousQuestion() {
