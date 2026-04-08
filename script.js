@@ -182,9 +182,9 @@ function renderQuestion(index) {
     const container = document.getElementById('quiz-container');
 
     let html = `
-        <div class="question" style="animation: fadeSlideIn 0.3s ease;">
-            <div class="question-title">${question.title}</div>
-            <div class="question-subtitle">${question.subtitle}</div>
+        <div class="question">
+            <h3 class="question-title">${question.title}</h3>
+            <p class="question-subtitle">${question.subtitle}</p>
     `;
 
     if (question.type === 'radio') {
@@ -214,26 +214,32 @@ function renderQuestion(index) {
     }
 
     html += '</div>';
-    container.innerHTML = html;
+    
+    // Smooth transition pseudo-animation effect
+    container.style.opacity = 0;
+    setTimeout(() => {
+        container.innerHTML = html;
+        container.style.transition = 'opacity 0.3s ease';
+        container.style.opacity = 1;
+    }, 150);
 
     updateProgress();
 
-    const prevBtn = document.getElementById('prevBtn');
-    if (prevBtn) {
-        prevBtn.style.display = currentQuestion > 0 ? 'inline-flex' : 'none';
-    }
-    
+    // Update button visibility
+    document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'inline-flex' : 'none';
     document.getElementById('nextBtn').textContent = currentQuestion === questions.length - 1 ? 'Xem kết quả' : 'Tiếp theo';
 }
 
 function selectOption(questionId, optionIndex, type) {
     if (type === 'radio') {
         answers[questionId] = optionIndex;
+        // Update UI
         document.querySelectorAll(`input[name="${questionId}"]`).forEach((input, i) => {
             input.checked = (i === optionIndex);
             input.parentElement.classList.toggle('selected', i === optionIndex);
         });
 
+        // Auto-advance
         setTimeout(() => {
             nextQuestion();
         }, 400);
@@ -248,7 +254,9 @@ function selectOption(questionId, optionIndex, type) {
             answers[questionId].push(optionIndex);
         }
 
-        document.querySelectorAll(`#quiz-container .option`).forEach(label => {
+        // Only update UI inside current question
+        const container = document.getElementById('quiz-container');
+        container.querySelectorAll('.option').forEach(label => {
             const input = label.querySelector('input[type="checkbox"]');
             if (input) {
                 const val = parseInt(input.value);
@@ -289,10 +297,18 @@ function startQuiz() {
 
     userData = { name, email, job };
 
-    document.getElementById('section-info').classList.remove('active');
-    document.getElementById('section-quiz').classList.add('active');
-
+    switchSection('section-info', 'section-quiz');
     renderQuestion(0);
+}
+
+function switchSection(fromId, toId) {
+    const fromSec = document.getElementById(fromId);
+    const toSec = document.getElementById(toId);
+    
+    fromSec.classList.remove('active');
+    setTimeout(() => {
+        toSec.classList.add('active');
+    }, 400);
 }
 
 function nextQuestion() {
@@ -306,7 +322,14 @@ function nextQuestion() {
     
     if (isOptional && !answers[question.id]) {
         answers[question.id] = [];
-}
+    }
+
+    if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        renderQuestion(currentQuestion);
+    } else {
+        showResults();
+    }
 }
 
 function previousQuestion() {
@@ -325,10 +348,10 @@ function calculateScore() {
         if (question.type === 'radio') {
             totalScore += question.options[answer].score;
         } else if (question.type === 'checkbox' && question.scoring) {
-            const count = answer.length;
-            totalScore += question.scoring(count);
+            totalScore += question.scoring(answer.length);
         }
     });
+
     return totalScore;
 }
 
@@ -341,7 +364,8 @@ function getTier(score) {
                 <p class="result-highlight">Bạn đang ở đây — cùng với rất nhiều dân văn phòng.</p>
                 <p>Bạn đã nghe về AI, có thể đã thử vài lần. Nhưng chưa có thói quen dùng, chưa có use case cụ thể.</p>
                 <p>Phần lớn nội dung AI chất lượng bằng tiếng Anh. Nếu không chủ động theo dõi, bạn chỉ biết những gì đã mainstream — tức là đã chậm 6-12 tháng.</p>
-                
+                <p>Không có gì sai. Nhưng có một khoảng cách mà bạn chưa thấy:</p>
+
                 <table class="result-table">
                     <thead>
                         <tr>
@@ -359,7 +383,7 @@ function getTier(score) {
                             <td>Biết cách chỉnh sửa để output dùng được</td>
                         </tr>
                         <tr>
-                            <td>"AI hay lắm, nhưng k biết dùng vào đâu"</td>
+                            <td>"AI hay lắm, nhưng không biết dùng vào đâu"</td>
                             <td>"AI giúp tôi làm nhanh hơn mỗi ngày"</td>
                         </tr>
                     </tbody>
@@ -374,7 +398,8 @@ function getTier(score) {
             description: `
                 <p class="result-highlight">Bạn dùng AI hàng ngày — nhưng vẫn đang dùng như Google.</p>
                 <p>Bạn biết ChatGPT, có thể đã dùng Custom GPT hoặc Projects. Nhưng cách bạn dùng AI chủ yếu là: hỏi một câu, nhận một đáp án, xong.</p>
-                
+                <p>Bạn chưa nghĩ về việc <strong>cách hỏi</strong> ảnh hưởng đến <strong>chất lượng câu trả lời</strong>.</p>
+
                 <table class="result-table">
                     <thead>
                         <tr>
@@ -385,11 +410,11 @@ function getTier(score) {
                     <tbody>
                         <tr>
                             <td>Hỏi gì thì hỏi, không nghĩ về prompt</td>
-                            <td>Cấu trúc prompt để ra output đúng ngay</td>
+                            <td>Cấu trúc prompt để ra output đúng ngay lần đầu</td>
                         </tr>
                         <tr>
-                            <td>Một tool, một cách dùng</td>
-                            <td>Dùng nhiều mode: text, voice, vision</td>
+                            <td>Một tool, một cách dùng, default settings</td>
+                            <td>Dùng nhiều mode: text, voice, vision, documents</td>
                         </tr>
                         <tr>
                             <td>AI là convenience — tiện thì dùng</td>
@@ -397,7 +422,7 @@ function getTier(score) {
                         </tr>
                     </tbody>
                 </table>
-                <div class="result-quote"><strong>Sự khác biệt cốt lõi:</strong> AI User dùng AI một cách tình cờ. AI Practitioner dùng AI có chủ đích.</div>
+                <p class="result-question"><strong>Sự khác biệt cốt lõi:</strong> AI User dùng AI một cách tình cờ. AI Practitioner dùng AI một cách có chủ đích.</p>
             `
         };
     } else if (score >= 25 && score <= 28) {
@@ -406,8 +431,9 @@ function getTier(score) {
             class: 'tier-practitioner',
             description: `
                 <p class="result-highlight">Bạn dùng AI có chủ đích — và đang ở nhóm <strong>top 20%</strong> dân văn phòng.</p>
-                <p>Bạn hiểu rằng cách hỏi quyết định chất lượng output. Đã dùng tính năng nâng cao, có setup riêng.</p>
-                
+                <p>Bạn hiểu rằng cách hỏi quyết định chất lượng output. Bạn đã dùng các tính năng nâng cao, có thể đã customize setup riêng.</p>
+                <p>Nhưng giữa "dùng tốt" và "không thể thiếu" vẫn còn một bước nhảy:</p>
+
                 <table class="result-table">
                     <thead>
                         <tr>
@@ -426,11 +452,11 @@ function getTier(score) {
                         </tr>
                         <tr>
                             <td>Biết dùng tính năng nâng cao</td>
-                            <td>Mô tả để AI code ra tool riêng</td>
+                            <td>Mô tả để AI code ra tool riêng (vibe coding)</td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="result-quote">Bạn muốn dừng ở "dùng tốt" hay lên "lột xác"?</div>
+                <p class="result-question"><strong>Câu hỏi:</strong> Bạn muốn dừng ở "dùng tốt" hay lên "lột xác"?</p>
             `
         };
     } else {
@@ -438,48 +464,33 @@ function getTier(score) {
             name: 'AI Native',
             class: 'tier-native',
             description: `
-                <p class="result-highlight">Chúc mừng! Bạn thuộc nhóm <strong>top 5%</strong> tinh hoa.</p>
-                <p>Nhóm này thường là developer có kỹ năng tự mày mò cực tốt.</p>
-                <div class="result-quote">Bạn có thể <strong>dạy lại</strong> những gì mình biết không?</div>
-                <div class="checkbox-group" style="pointer-events:none; margin: 20px 0;">
-                    <label class="option"><input type="checkbox" checked disabled> Giải thích được cho đồng nghiệp</label>
-                    <label class="option"><input type="checkbox" checked disabled> Có workflow copy được</label>
-                    <label class="option"><input type="checkbox" checked disabled> Đã từng giúp ai đó lên level</label>
-                </div>
-                <p>Kỹ năng cá nhân ≠ khả năng truyền đạt. Đó là level tiếp theo của bạn.</p>
+                <p class="result-highlight">Nếu bạn thực sự ở đây — chúc mừng. Bạn thuộc nhóm <strong>top 5%</strong>.</p>
+                <p>Nhóm này thường là developer, expat, hoặc người "sống" trên các cộng đồng AI và có khả năng tự mày mò cực tốt.</p>
+                <p class="result-question">Cho mình hỏi:</p>
+
+                <div class="result-quote">Bạn có thể <strong>dạy lại</strong> những gì bạn biết không?</div>
+
+                <ul class="result-checklist">
+                    <li><input type="checkbox" disabled> Giải thích được cho đồng nghiệp cách bạn dùng AI</li>
+                    <li><input type="checkbox" disabled> Có workflow cụ thể mà người khác copy được</li>
+                    <li><input type="checkbox" disabled> Đã từng giúp ai đó lên level</li>
+                </ul>
+                <p><strong>Nếu chưa tick hết:</strong> Kỹ năng cá nhân ≠ khả năng truyền đạt. Đó là level tiếp theo.</p>
             `
         };
     }
-}
-
-// Animate score counting
-function animateScore(targetScore) {
-    let current = 0;
-    const scoreEl = document.getElementById('finalScore');
-    const interval = setInterval(() => {
-        if (current >= targetScore) {
-            clearInterval(interval);
-            scoreEl.textContent = targetScore;
-        } else {
-            current++;
-            scoreEl.textContent = current;
-        }
-    }, 40);
 }
 
 function showResults() {
     const score = calculateScore();
     const tier = getTier(score);
 
-    document.getElementById('section-quiz').classList.remove('active');
-    document.getElementById('section-result').classList.add('active');
+    switchSection('section-quiz', 'section-result');
 
-    // Trigger score animation
-    animateScore(score);
-    
-    document.getElementById('tierBadgeContainer').innerHTML = `<div class="tier-badge ${tier.class}">${tier.name}</div>`;
+    document.getElementById('finalScore').textContent = score;
+    document.getElementById('tierBadge').innerHTML = `<div class="tier-badge ${tier.class}">${tier.name}</div>`;
     document.getElementById('tierDescription').innerHTML = tier.description;
-
+    
     document.getElementById('progressBar').style.width = '100%';
 
     const isAdvanced = (tier.name === 'AI Practitioner' || tier.name === 'AI Native');
@@ -489,47 +500,45 @@ function showResults() {
     userData.score = score;
     userData.tier = tier.name;
     userData.answers = answers;
+
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby2UR8LpFknBCLHu-dSa77kTgYVzi5xKha5Sl1FSOL7Jwel0KiU4UQlRBydQ9xn0nHL/exec';
+    
+    if (scriptURL !== 'https://script.google.com/macros/s/AKfycby2UR8LpFknBCLHu-dSa77kTgYVzi5xKha5Sl1FSOL7Jwel0KiU4UQlRBydQ9xn0nHL/exec') {
+        fetch(scriptURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({
+                name: userData.name,
+                email: userData.email,
+                job: userData.job,
+                score: userData.score,
+                tier: userData.tier,
+                answers: userData.answers
+            })
+        }).catch(error => console.error('Lỗi khi gửi dữ liệu ngầm:', error));
+    }
 }
 
 function registerWorkshop() {
-    const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyVrGEuzCE-9FYLg2ib1ZxL1vylGP207Q00JB2C_f4BGY5wDoxS0HYwKvnJ42bVzcgd/exec';
-
-    const data = {
-        timestamp: new Date().toISOString(),
-        name: userData.name,
-        email: userData.email,
-        job: userData.job,
-        score: userData.score,
-        tier: userData.tier,
-        answers: JSON.stringify(userData.answers)
-    };
-
     const btn = document.querySelector('button[onclick="registerWorkshop()"]');
-    const originalContent = btn.innerHTML;
+    const originalText = btn.textContent;
     btn.textContent = 'Đang xử lý...';
     btn.disabled = true;
 
-    fetch(GOOGLE_SHEETS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(() => {
-        document.getElementById('section-result').classList.remove('active');
-        document.getElementById('section-thankyou').classList.add('active');
+    setTimeout(() => successState(btn, originalText), 800);
+}
 
-        const thankYouContent = getThankYouContent(userData.tier);
-        document.getElementById('thankYouMessage').innerHTML = thankYouContent;
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ trực tiếp qua email.');
-        btn.innerHTML = originalContent;
-        btn.disabled = false;
-    });
+function successState(btn, originalText) {
+    switchSection('section-result', 'section-thankyou');
+    
+    const thankYouContent = getThankYouContent(userData.tier);
+    document.getElementById('thankYouMessage').innerHTML = thankYouContent;
+    
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    btn.textContent = originalText;
+    btn.disabled = false;
 }
 
 function getThankYouContent(tierName) {
@@ -538,13 +547,13 @@ function getThankYouContent(tierName) {
     const workshopLabel = isAdvanced ? 'Workshop B (AI Practitioner & Native)' : 'Workshop A (AI Curious & User)';
 
     return `
-        <h3 style="color: var(--primary-light); margin-bottom: 20px;">Workshop dành cho bạn: <br>${workshopLabel}</h3>
-        <p style="font-size: 20px; font-weight: 600; margin: 15px 0;">${workshopDate} | 09:00-11:30</p>
-        <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">Dựa trên kết quả, mình đã chọn buổi workshop phù hợp nhất với cấp độ của bạn.</p>
-        <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">Trong lúc chờ đợi, bạn hãy vào <strong>Tier Ranking Tool</strong> bên dưới để tự xếp hạng các tính năng AI theo ý mình nhé!</p>
+        <h3 style="color: var(--primary); margin-bottom: 15px;">Workshop dành cho bạn: ${workshopLabel}</h3>
+        <p style="font-size: 18px; font-weight: 600; margin: 15px 0;">${workshopDate} | 09:00-11:30 | Online</p>
+        <p style="margin-top: 15px;">Dựa trên kết quả scorecard, mình đã chọn buổi workshop phù hợp nhất với cấp độ của bạn.</p>
+        <p style="margin-top: 15px; color: var(--text-secondary);">Trong lúc chờ đợi, bạn hãy vào <strong>Tier Ranking Tool</strong> bên dưới để tự xếp hạng các tính năng AI theo ý mình. Tim sẽ chia sẻ góc nhìn của mình về bảng xếp hạng này <strong>Live trên Google Meet</strong>.</p>
         
-        <div style="margin-top: 30px; margin-bottom: 15px;">
-            <a href="https://muriel1008.github.io/tier-ranking-tool/" target="_blank" class="btn btn-primary" style="text-decoration: none; display: inline-flex;">Mở Tier Ranking Tool</a>
+        <div style="margin-top: 24px;">
+            <a href="https://muriel1008.github.io/tier-ranking-tool/" target="_blank" class="btn btn-primary" style="text-decoration: none;">Mở Tier Ranking Tool</a>
         </div>
     `;
 }
