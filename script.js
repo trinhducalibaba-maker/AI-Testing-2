@@ -214,7 +214,7 @@ function renderQuestion(index) {
     }
 
     html += '</div>';
-    
+
     // Smooth transition pseudo-animation effect
     container.style.opacity = 0;
     setTimeout(() => {
@@ -304,7 +304,7 @@ function startQuiz() {
 function switchSection(fromId, toId) {
     const fromSec = document.getElementById(fromId);
     const toSec = document.getElementById(toId);
-    
+
     fromSec.classList.remove('active');
     setTimeout(() => {
         toSec.classList.add('active');
@@ -314,12 +314,12 @@ function switchSection(fromId, toId) {
 function nextQuestion() {
     const question = questions[currentQuestion];
     const isOptional = question.scoring === null;
-    
+
     if (!isOptional && (answers[question.id] === undefined || answers[question.id] === null || (Array.isArray(answers[question.id]) && answers[question.id].length === 0))) {
         alert('Vui lòng chọn ít nhất một đáp án');
         return;
     }
-    
+
     if (isOptional && !answers[question.id]) {
         answers[question.id] = [];
     }
@@ -490,7 +490,7 @@ function showResults() {
     document.getElementById('finalScore').textContent = score;
     document.getElementById('tierBadge').innerHTML = `<div class="tier-badge ${tier.class}">${tier.name}</div>`;
     document.getElementById('tierDescription').innerHTML = tier.description;
-    
+
     document.getElementById('progressBar').style.width = '100%';
 
     const isAdvanced = (tier.name === 'AI Practitioner' || tier.name === 'AI Native');
@@ -502,23 +502,21 @@ function showResults() {
     userData.answers = answers;
 
     const scriptURL = 'https://script.google.com/macros/s/AKfycby2UR8LpFknBCLHu-dSa77kTgYVzi5xKha5Sl1FSOL7Jwel0KiU4UQlRBydQ9xn0nHL/exec';
-    
-    if (scriptURL !== 'https://script.google.com/macros/s/AKfycby2UR8LpFknBCLHu-dSa77kTgYVzi5xKha5Sl1FSOL7Jwel0KiU4UQlRBydQ9xn0nHL/exec') {
-        fetch(scriptURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',
-            },
-            body: JSON.stringify({
-                name: userData.name,
-                email: userData.email,
-                job: userData.job,
-                score: userData.score,
-                tier: userData.tier,
-                answers: userData.answers
-            })
-        }).catch(error => console.error('Lỗi khi gửi dữ liệu ngầm:', error));
-    }
+
+    fetch(scriptURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify({
+            name: userData.name,
+            email: userData.email,
+            job: userData.job,
+            score: userData.score,
+            tier: userData.tier,
+            answers: userData.answers
+        })
+    }).catch(error => console.error('Lỗi khi gửi dữ liệu ngầm:', error));
 }
 
 function registerWorkshop() {
@@ -532,11 +530,11 @@ function registerWorkshop() {
 
 function successState(btn, originalText) {
     switchSection('section-result', 'section-thankyou');
-    
+
     const thankYouContent = getThankYouContent(userData.tier);
     document.getElementById('thankYouMessage').innerHTML = thankYouContent;
-    
-    window.scrollTo({top: 0, behavior: 'smooth'});
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     btn.textContent = originalText;
     btn.disabled = false;
 }
